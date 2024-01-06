@@ -4,3 +4,7 @@
 2024-01-06 22:24:21,903 INFO spawned: 'php-fpm' with pid 8
 2024-01-06 22:24:22,922 INFO success: apache2 entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
 2024-01-06 22:24:22,923 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2024-01-06 23:13:19,954 WARN received SIGQUIT indicating exit request
+2024-01-06 23:13:19,962 INFO waiting for apache2, php-fpm to die
+2024-01-06 23:13:19,966 INFO stopped: php-fpm (exit status 0)
+2024-01-06 23:13:19,972 WARN stopped: apache2 (terminated by SIGTERM)
