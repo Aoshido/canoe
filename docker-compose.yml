@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: symfony-app
+    working_dir: /var/www/html
+    volumes:
+      - C:/Users/Gally/projects/canoe:/var/www/html
+      - ./apache-config.conf:/etc/apache2/sites-available/000-default.conf
+    ports:
+      - "80:80"
+    networks:
+      - symfony-net
+
+networks:
+  symfony-net:
+    driver: bridge
