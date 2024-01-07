@@ -10,7 +10,13 @@ RUN apt-get update && \
         libzip-dev \
         zlib1g-dev \
         libpq-dev \
-        supervisor
+        supervisor \
+        librabbitmq-dev \
+        libicu-dev
+
+# Install RabbitMQ PHP extension
+RUN pecl install amqp && \
+    docker-php-ext-enable amqp
 
 # Install Apache and enable required modules
 RUN apt-get install -y apache2 && \
