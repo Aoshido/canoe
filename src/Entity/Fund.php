@@ -2,17 +2,25 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Metadata\ApiResource;
 use App\Repository\FundRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\ApiFilter;
 
 #[ORM\Entity(repositoryClass: FundRepository::class)]
 #[ApiResource(
     normalizationContext: ['groups' => ['read']],
     denormalizationContext: ['groups' => ['write']],
 )]
+#[ApiFilter(SearchFilter::class, properties: ['name' => 'partial'])]            // api/funds.json?name=string
+#[ApiFilter(SearchFilter::class, properties: ['manager.id' => 'partial'])]      // TODO Fix this search
+#[ApiFilter(DateFilter::class, properties: ['startYear'])]                      // api/funds.json?startYear[after]=2025-01-01
+#[ApiFilter(OrderFilter::class, properties: ['name' => 'ASC'])]                 // api/funds.json?order[name]=desc
 class Fund
 {
     #[ORM\Id]
@@ -25,10 +33,12 @@ class Fund
     private ?string $name = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[Groups(['read', 'write'])]
     private ?\DateTimeInterface $startYear = null;
 
     #[ORM\ManyToOne(inversedBy: 'funds')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['read', 'write'])]
     private ?Manager $manager = null;
 
     public function getId(): ?int
