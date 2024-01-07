@@ -9,15 +9,24 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ManagerRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    shortName: 'Manager',
+    description: 'Funds are created and managed by an investment management company',
+    normalizationContext: [
+        'groups' => ['manager:read'],
+    ]
+)]
+
 class Manager
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['manager:read'])]
     private ?int $id = null;
 
     #[ORM\OneToMany(mappedBy: 'manager', targetEntity: Fund::class)]
+    #[Groups(['manager:read'])]
     private Collection $funds;
 
     public function __construct()

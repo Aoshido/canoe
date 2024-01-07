@@ -19,6 +19,9 @@ RUN apt-get install -y apache2 && \
     a2enmod proxy_fcgi && \
     a2enmod proxy_http
 
+# Install PostgreSQL driver
+RUN docker-php-ext-install pdo pdo_pgsql
+
 # Configure Apache
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 
