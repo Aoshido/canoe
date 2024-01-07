@@ -7,12 +7,16 @@ use App\Repository\ManagerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ManagerRepository::class)]
 #[ApiResource(
     shortName: 'Manager',
     description: 'Funds are created and managed by an investment management company',
     normalizationContext: [
+        'groups' => ['manager:read'],
+    ],
+    denormalizationContext: [
         'groups' => ['manager:read'],
     ]
 )]
