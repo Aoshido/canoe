@@ -20,8 +20,6 @@ class FundDuplicatorWarner {
     // the entity listener methods receive two arguments:
     // the entity instance and the lifecycle event
     public function postPersist(Fund $fund, PostPersistEventArgs $event): void {
-        dump($fund->getName());
         $this->bus->dispatch(new PossibleDuplicate('Look! I created a message!'));
-
     }
 }
