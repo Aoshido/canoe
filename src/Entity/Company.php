@@ -29,7 +29,7 @@ class Company {
     #[Groups(['company:read', 'fund:read'])]
     private ?int $id = null;
 
-    #[ORM\OneToMany(mappedBy: 'company', targetEntity: Fund::class)]
+    #[ORM\OneToMany(mappedBy: 'manager', targetEntity: Fund::class)]
     #[Groups(['company:read'])]
     private Collection $managedFunds;
 

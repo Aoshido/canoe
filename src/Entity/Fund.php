@@ -5,6 +5,7 @@ namespace App\Entity;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\Filter\DateFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -22,11 +23,22 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Metadata\ApiFilter;
 use Symfony\Component\Serializer\Annotation\Context;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: FundRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(
     operations: [
+        new Get(
+            uriTemplate: '/funds/{id}',
+            requirements: ['id' => '\d+'],
+        ),
+        new Post(),
+        new GetCollection(),
+        new Put(),
+        new Delete(),
+        new Patch(),
         new Get(
             uriTemplate: '/funds/duplicates',
             formats: ['json', 'jsonld'],
@@ -35,18 +47,14 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
             read: false,
             name: 'duplicates'
         ),
-        new Get(),
-        new Post(),
-        new GetCollection(),
-        new Put(),
-        new Delete(),
-        new Patch()
     ],
     normalizationContext: [
         'groups' => ['fund:read'],
+        [DateTimeNormalizer::FORMAT_KEY => 'Y']
     ],
     denormalizationContext: [
         'groups' => ['fund:write'],
+        [DateTimeNormalizer::FORMAT_KEY => 'Y']
     ],
 )]
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'partial'])]            // api/funds.json?name=string
@@ -65,12 +73,32 @@ class Fund {
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Groups(['fund:read', 'fund:write', 'company:read'])]
-    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y'])]
+    #[Context(
+        context: [DateTimeNormalizer::FORMAT_KEY => 'Y'],
+        normalizationContext: [DateTimeNormalizer::FORMAT_KEY => 'Y'],
+        groups: ['fund:read', 'fund:write', 'company:read']
+    )]
+    #[ApiProperty(
+        openapiContext: [
+            'type' => 'string',
+            'format' => 'date',
+            'pattern' => '/([0-9]{4})/',
+            'example' => '1990'
+        ]
+    )]
     private ?\DateTimeInterface $startYear = null;
 
     #[ORM\ManyToOne(inversedBy: 'assignedFunds')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['fund:read', 'fund:write'])]
+    #[ApiProperty(
+        openapiContext: [
+            'type' => 'string',
+            'example' => '/api/companies/1'
+        ]
+    )]
+    #[Assert\NotBlank]
+    #[Assert\NotNull]
     private ?Company $manager = null;
 
     #[ORM\ManyToOne(targetEntity: self::class)]
@@ -79,14 +107,21 @@ class Fund {
     #[ORM\ManyToOne(inversedBy: 'assignedFunds')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['fund:read', 'fund:write'])]
+    #[ApiProperty(
+        openapiContext: [
+            'type' => 'string',
+            'example' => '/api/companies/1'
+        ]
+    )]
+    #[Assert\NotBlank]
+    #[Assert\NotNull]
     private ?Company $company = null;
 
     #[ORM\OneToMany(mappedBy: 'fund', targetEntity: Alias::class, cascade: ['persist'], orphanRemoval: true)]
     #[Groups(['fund:read', 'fund:write'])]
     private Collection $aliases;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->aliases = new ArrayCollection();
     }
 
@@ -134,13 +169,11 @@ class Fund {
         return $this;
     }
 
-    public function getCompany(): ?Company
-    {
+    public function getCompany(): ?Company {
         return $this->company;
     }
 
-    public function setCompany(?Company $company): static
-    {
+    public function setCompany(?Company $company): static {
         $this->company = $company;
 
         return $this;
@@ -149,13 +182,11 @@ class Fund {
     /**
      * @return Collection<int, Alias>
      */
-    public function getAliases(): Collection
-    {
+    public function getAliases(): Collection {
         return $this->aliases;
     }
 
-    public function addAlias(Alias $alias): static
-    {
+    public function addAlias(Alias $alias): static {
         if (!$this->aliases->contains($alias)) {
             $this->aliases->add($alias);
             $alias->setFund($this);
@@ -164,8 +195,7 @@ class Fund {
         return $this;
     }
 
-    public function removeAlias(Alias $alias): static
-    {
+    public function removeAlias(Alias $alias): static {
         if ($this->aliases->removeElement($alias)) {
             // set the owning side to null (unless already changed)
             if ($alias->getFund() === $this) {
@@ -175,4 +205,5 @@ class Fund {
 
         return $this;
     }
+
 }
