@@ -25,6 +25,7 @@ The stack is as follows:
 - Run `docker-compose exec php bin/console doctrine:migrations:migrate`
 - Go to `localhost/api` on your browser or you can start using the endpoints of the API with any tool (Postman, etc)
 - Optionally you can run  `docker-compose exec php bin/console doctrine:fixtures:load` to get a populated db
+- To run the tests you can `use docker-compose exec php bin/phpunit`
 
 ## System Capabilities
 
