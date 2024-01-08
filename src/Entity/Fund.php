@@ -42,6 +42,9 @@ class Fund
     #[Groups(['read', 'write'])]
     private ?Manager $manager = null;
 
+    #[ORM\ManyToOne(targetEntity: self::class)]
+    private ?self $duplicateFund = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -79,6 +82,18 @@ class Fund
     public function setManager(?Manager $manager): static
     {
         $this->manager = $manager;
+
+        return $this;
+    }
+
+    public function getDuplicateFund(): ?self
+    {
+        return $this->duplicateFund;
+    }
+
+    public function setDuplicateFund(?self $duplicateFund): static
+    {
+        $this->duplicateFund = $duplicateFund;
 
         return $this;
     }

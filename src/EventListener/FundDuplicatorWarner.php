@@ -13,13 +13,22 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[AsEntityListener(event: Events::postPersist, method: 'postPersist', entity: Fund::class)]
 class FundDuplicatorWarner {
 
-    // Inject the MessageBusInterface through the constructor
     public function __construct(private MessageBusInterface $bus) {
     }
 
-    // the entity listener methods receive two arguments:
-    // the entity instance and the lifecycle event
-    public function postPersist(Fund $fund, PostPersistEventArgs $event): void {
-        $this->bus->dispatch(new PossibleDuplicate('Look! I created a message!'));
+    public function postPersist(Fund $fund, PostPersistEventArgs $args): void {
+        // Just check for ONE duplicate, if there are more the consumer will handle it
+        $duplicate = $args->getObjectManager()
+            ->getRepository(Fund::class)
+            ->findOneBy([
+                'name' => $fund->getName()
+            ]);
+
+        if (!is_null($duplicate)) {
+            $this->bus->dispatch(new PossibleDuplicate(
+                'Possible duplicate found. NewFundId : [' . $fund->getId() . ']'
+                . ' DuplicateFundId: [' . $duplicate->getId() . ']', $fund->getId()));
+        }
+
     }
 }
