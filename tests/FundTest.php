@@ -141,4 +141,21 @@ class FundTest extends ApiTestCase {
         );
     }
 
+    public function testDuplicateWarning(): void {
+        FundFactory::createOne(['name' => '9781344037075']);
+
+        /** @var Fund $fund */
+        $fund = static::getContainer()->get('doctrine')->getRepository(Fund::class)->findOneBy(['name' => '9781344037075']);
+        $companyIri = $this->findIriBy(Company::class, ['id' => $fund->getManager()]);
+
+        $response = static::createClient()->request('POST', '/api/funds', ['json' => [
+            'name' => $fund->getName(),
+            'startYear' => "1990",
+            'manager' => $companyIri,
+            'company' => $companyIri,
+        ]]);
+
+        $this->assertStringContainsString("Possible duplicate found.", static::getContainer()->get('messenger.default_bus')->getDispatchedMessages()[0]["message"]->getContent());
+    }
+
 }
