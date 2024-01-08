@@ -21,12 +21,18 @@ class PossibleDuplicateHandler {
         $originalFund = $fundRepository->find($message->getFundId());
 
         $duplicates = $fundRepository
-            ->findBy([
-                'name' => $originalFund->getName()
-            ],
-            [
-                "id" => "asc"
-            ]);
+            ->createQueryBuilder('f')
+            ->where('f.name = :name')
+            ->andWhere('f.manager = :manager')
+            ->andWhere('f.id != :originalId')
+            ->setParameters([
+                'name' => $originalFund->getName(),
+                'manager' => $originalFund->getManager(),
+                'originalId' => $originalFund->getId(),
+            ])
+            ->orderBy('f.id', 'ASC')
+            ->getQuery()
+            ->getResult();
 
         // This can hugely be improved upon
         $firstDuplicate = $duplicates[0];

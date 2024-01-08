@@ -14,10 +14,14 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Controller\GetDuplicateFunds;
 use App\Repository\FundRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Metadata\ApiFilter;
+use Symfony\Component\Serializer\Annotation\Context;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 
 #[ORM\Entity(repositoryClass: FundRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -38,11 +42,15 @@ use ApiPlatform\Metadata\ApiFilter;
         new Delete(),
         new Patch()
     ],
-    normalizationContext: ['groups' => ['read']],
-    denormalizationContext: ['groups' => ['write']],
+    normalizationContext: [
+        'groups' => ['fund:read'],
+    ],
+    denormalizationContext: [
+        'groups' => ['fund:write'],
+    ],
 )]
 #[ApiFilter(SearchFilter::class, properties: ['name' => 'partial'])]            // api/funds.json?name=string
-#[ApiFilter(SearchFilter::class, properties: ['manager.id' => 'partial'])]      // TODO Fix this search
+#[ApiFilter(SearchFilter::class, properties: ['company.id' => 'partial'])]      // TODO Fix this search
 #[ApiFilter(DateFilter::class, properties: ['startYear'])]                      // api/funds.json?startYear[after]=2025-01-01
 #[ApiFilter(OrderFilter::class, properties: ['name' => 'ASC'])]                 // api/funds.json?order[name]=desc
 class Fund {
@@ -52,20 +60,35 @@ class Fund {
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['read', 'write'])]
+    #[Groups(['fund:read', 'fund:write', 'company:read'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    #[Groups(['read', 'write'])]
+    #[Groups(['fund:read', 'fund:write', 'company:read'])]
+    #[Context([DateTimeNormalizer::FORMAT_KEY => 'Y'])]
     private ?\DateTimeInterface $startYear = null;
 
-    #[ORM\ManyToOne(inversedBy: 'funds')]
+    #[ORM\ManyToOne(inversedBy: 'assignedFunds')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['read', 'write'])]
-    private ?Manager $manager = null;
+    #[Groups(['fund:read', 'fund:write'])]
+    private ?Company $manager = null;
 
     #[ORM\ManyToOne(targetEntity: self::class)]
     private ?self $duplicateFund = null;
+
+    #[ORM\ManyToOne(inversedBy: 'assignedFunds')]
+    #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['fund:read', 'fund:write'])]
+    private ?Company $company = null;
+
+    #[ORM\OneToMany(mappedBy: 'fund', targetEntity: Alias::class, cascade: ['persist'], orphanRemoval: true)]
+    #[Groups(['fund:read', 'fund:write'])]
+    private Collection $aliases;
+
+    public function __construct()
+    {
+        $this->aliases = new ArrayCollection();
+    }
 
     public function getId(): ?int {
         return $this->id;
@@ -91,11 +114,11 @@ class Fund {
         return $this;
     }
 
-    public function getManager(): ?Manager {
+    public function getManager(): ?Company {
         return $this->manager;
     }
 
-    public function setManager(?Manager $manager): static {
+    public function setManager(?Company $manager): static {
         $this->manager = $manager;
 
         return $this;
@@ -107,6 +130,48 @@ class Fund {
 
     public function setDuplicateFund(?self $duplicateFund): static {
         $this->duplicateFund = $duplicateFund;
+
+        return $this;
+    }
+
+    public function getCompany(): ?Company
+    {
+        return $this->company;
+    }
+
+    public function setCompany(?Company $company): static
+    {
+        $this->company = $company;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Alias>
+     */
+    public function getAliases(): Collection
+    {
+        return $this->aliases;
+    }
+
+    public function addAlias(Alias $alias): static
+    {
+        if (!$this->aliases->contains($alias)) {
+            $this->aliases->add($alias);
+            $alias->setFund($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAlias(Alias $alias): static
+    {
+        if ($this->aliases->removeElement($alias)) {
+            // set the owning side to null (unless already changed)
+            if ($alias->getFund() === $this) {
+                $alias->setFund(null);
+            }
+        }
 
         return $this;
     }

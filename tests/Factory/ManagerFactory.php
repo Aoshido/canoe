@@ -2,30 +2,30 @@
 
 namespace App\Tests\Factory;
 
-use App\Entity\Manager;
-use App\Repository\ManagerRepository;
+use App\Entity\Company;
+use App\Repository\CompanyRepository;
 use Zenstruck\Foundry\ModelFactory;
 use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
 
 /**
- * @extends ModelFactory<Manager>
+ * @extends ModelFactory<Company>
  *
- * @method        Manager|Proxy                     create(array|callable $attributes = [])
- * @method static Manager|Proxy                     createOne(array $attributes = [])
- * @method static Manager|Proxy                     find(object|array|mixed $criteria)
- * @method static Manager|Proxy                     findOrCreate(array $attributes)
- * @method static Manager|Proxy                     first(string $sortedField = 'id')
- * @method static Manager|Proxy                     last(string $sortedField = 'id')
- * @method static Manager|Proxy                     random(array $attributes = [])
- * @method static Manager|Proxy                     randomOrCreate(array $attributes = [])
- * @method static ManagerRepository|RepositoryProxy repository()
- * @method static Manager[]|Proxy[]                 all()
- * @method static Manager[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
- * @method static Manager[]|Proxy[]                 createSequence(iterable|callable $sequence)
- * @method static Manager[]|Proxy[]                 findBy(array $attributes)
- * @method static Manager[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
- * @method static Manager[]|Proxy[]                 randomSet(int $number, array $attributes = [])
+ * @method        Company|Proxy                     create(array|callable $attributes = [])
+ * @method static Company|Proxy                     createOne(array $attributes = [])
+ * @method static Company|Proxy                     find(object|array|mixed $criteria)
+ * @method static Company|Proxy                     findOrCreate(array $attributes)
+ * @method static Company|Proxy                     first(string $sortedField = 'id')
+ * @method static Company|Proxy                     last(string $sortedField = 'id')
+ * @method static Company|Proxy                     random(array $attributes = [])
+ * @method static Company|Proxy                     randomOrCreate(array $attributes = [])
+ * @method static CompanyRepository|RepositoryProxy repository()
+ * @method static Company[]|Proxy[]                 all()
+ * @method static Company[]|Proxy[]                 createMany(int $number, array|callable $attributes = [])
+ * @method static Company[]|Proxy[]                 createSequence(iterable|callable $sequence)
+ * @method static Company[]|Proxy[]                 findBy(array $attributes)
+ * @method static Company[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
+ * @method static Company[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
 final class ManagerFactory extends ModelFactory
 {
@@ -62,6 +62,6 @@ final class ManagerFactory extends ModelFactory
 
     protected static function getClass(): string
     {
-        return Manager::class;
+        return Company::class;
     }
 }
