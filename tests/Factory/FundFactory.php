@@ -47,7 +47,8 @@ final class FundFactory extends ModelFactory
     protected function getDefaults(): array
     {
         return [
-            'manager' => ManagerFactory::new(),
+            'manager' => CompanyFactory::new(),
+            'company' => CompanyFactory::new(),
             'name' => self::faker()->text(255),
             'startYear' => self::faker()->dateTime(),
         ];

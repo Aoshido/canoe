@@ -21,9 +21,10 @@ The stack is as follows:
 ## Instructions to run the project:
 
 - Clone the repository
-- run `docker-compose up -d --build --force-recreate`
-- run `docker-compose exec php bin/console doctrine:migrations:migrate`
-- go to `localhost/api` on your browser or you can start using the endpoints of the API with any tool (Postman, etc)
+- Run `docker-compose up -d --build --force-recreate`
+- Run `docker-compose exec php bin/console doctrine:migrations:migrate`
+- Go to `localhost/api` on your browser or you can start using the endpoints of the API with any tool (Postman, etc)
+- Optionally you can run  `docker-compose exec php bin/console doctrine:fixtures:load` to get a populated db
 
 ## System Capabilities
 

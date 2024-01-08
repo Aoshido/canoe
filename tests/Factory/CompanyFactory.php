@@ -27,7 +27,7 @@ use Zenstruck\Foundry\RepositoryProxy;
  * @method static Company[]|Proxy[]                 randomRange(int $min, int $max, array $attributes = [])
  * @method static Company[]|Proxy[]                 randomSet(int $number, array $attributes = [])
  */
-final class ManagerFactory extends ModelFactory
+final class CompanyFactory extends ModelFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
@@ -47,6 +47,7 @@ final class ManagerFactory extends ModelFactory
     protected function getDefaults(): array
     {
         return [
+            'name' => self::faker()->text(255),
         ];
     }
 
@@ -56,7 +57,7 @@ final class ManagerFactory extends ModelFactory
     protected function initialize(): self
     {
         return $this
-            // ->afterInstantiate(function(Manager $manager): void {})
+            // ->afterInstantiate(function(Company $company): void {})
         ;
     }
 
